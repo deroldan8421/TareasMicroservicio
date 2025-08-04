@@ -22,7 +22,7 @@ Este proyecto implementa un microservicio en .NET 8 con autenticación JWT, que 
 │   └── index.html
 │
 ├── database/
-│   └── script.sql          # Script SQL con CREATE e INSERT
+│   └── script_tareas_completo.sql          # Script SQL con CREATE e INSERT
 │
 └── README.md               # Este archivo
 
@@ -41,22 +41,19 @@ Este proyecto implementa un microservicio en .NET 8 con autenticación JWT, que 
 
 1. Clona este repositorio:
 
-   bash
-   git clone https://github.com/tu_usuario/ProyectoTareas.git
+   git clone https://github.com/deroldan8421/TareasMicroservicio.git
    
 
 2. Abre la solución con Visual Studio o VS Code.
 
 3. Verifica que la cadena de conexión en `appsettings.json` sea correcta para tu entorno:
 
-   json
    "ConnectionStrings": {
      "DefaultConnection": "Server=TU_SERVIDOR;Database=TareasDb;Trusted_Connection=True;TrustServerCertificate=True;"
    }   
 
 4. Ejecuta el backend con:
 
-   bash
    dotnet run   
 
    Por defecto, el API estará disponible en:  
@@ -94,7 +91,6 @@ POST http://localhost:5007/api/auth/login
 
 Request JSON:
 
-json
 {
   "usuario": "admin",
   "clave": "admin123"
