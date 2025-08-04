@@ -8,23 +8,32 @@ Este proyecto implementa un microservicio en .NET 8 con autenticación JWT, que 
 ## Estructura del Proyecto
 
 ---
-/ProyectoTareas/
+TareasMicroservicio/
+├── Backend/                  # API REST en .NET
+│   ├── Controllers/
+│   │   ├── AuthController.cs
+│   │   └── TareasController.cs
+│   ├── Data/
+│   │   └── TareaRepository.cs
+│   ├── Interfaces/
+│   │   └── ITareaRepository.cs
+│   ├── Models/
+│   │   ├── Tarea.cs
+│   │   └── LoginRequest.cs
+│   ├── Program.cs
+│   ├── appsettings.json
+│   ├── TareasMicroservicio.csproj
+│   └── wwwroot/
+│       └── index.html        # Cliente web integrado (opcional)
 │
-├── Backend/                # API REST en .NET
-│   └── TareasMicroservicio/
-│       ├── Controllers/
-│       ├── Data/
-│       ├── Models/
-│       ├── Program.cs
-│       └── ...
-│
-├── Frontend/               # Cliente web
+├── Frontend/                # Cliente web independiente
 │   └── index.html
 │
-├── database/
-│   └── script_tareas_completo.sql          # Script SQL con CREATE e INSERT
+├── Database/
+│   └── script_tareas_completo.sql
 │
-└── README.md               # Este archivo
+├── README.md
+└── TareasMicroservicio.sln
 
 ---
 
