@@ -84,7 +84,7 @@ Se incluye el archivo `script_base_datos.sql` en la raíz del proyecto. Este arc
 ### Restaurar la base de datos
 
 1. Abre SQL Server Management Studio (SSMS)
-2. Ejecuta el contenido de `script_base_datos.sql`
+2. Ejecuta el contenido de `script_tareas_completo.sql`
 
 
 ---
