@@ -8,33 +8,7 @@ Este proyecto implementa un microservicio en .NET 8 con autenticación JWT, que 
 ## Estructura del Proyecto
 
 ---
-TareasMicroservicio/
-├── Backend/                  # API REST en .NET
-│   ├── Controllers/
-│   │   ├── AuthController.cs
-│   │   └── TareasController.cs
-│   ├── Data/
-│   │   └── TareaRepository.cs
-│   ├── Interfaces/
-│   │   └── ITareaRepository.cs
-│   ├── Models/
-│   │   ├── Tarea.cs
-│   │   └── LoginRequest.cs
-│   ├── Program.cs
-│   ├── appsettings.json
-│   ├── TareasMicroservicio.csproj
-│   └── wwwroot/
-│       └── index.html        # Cliente web integrado (opcional)
-│
-├── Frontend/                # Cliente web independiente
-│   └── index.html
-│
-├── Database/
-│   └── script_tareas_completo.sql
-│
-├── README.md
-└── TareasMicroservicio.sln
-
+<pre> ### 🗂️ Estructura del Proyecto ```plaintext TareasMicroservicio/ ├── Backend/ # API REST en .NET │ ├── Controllers/ │ │ ├── AuthController.cs │ │ └── TareasController.cs │ ├── Data/ │ │ └── TareaRepository.cs │ ├── Interfaces/ │ │ └── ITareaRepository.cs │ ├── Models/ │ │ ├── Tarea.cs │ │ └── LoginRequest.cs │ ├── Program.cs │ ├── appsettings.json │ ├── TareasMicroservicio.csproj │ └── wwwroot/ │ └── index.html # Cliente web integrado (opcional) │ ├── Frontend/ # Cliente web independiente │ └── index.html │ ├── Database/ │ └── script_tareas_completo.sql │ ├── README.md └── TareasMicroservicio.sln ``` </pre>
 ---
 
 ## Requisitos Previos
