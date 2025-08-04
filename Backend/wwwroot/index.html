@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Tareas con Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+        }
+
+        #mensaje {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .exito {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        #logoutContainer {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Microservicio de Tareas</h1>
+
+        <div id="logoutContainer" style="display: none;">
+            <button onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+
+        <div class="form-container" id="loginForm">
+            <h2>Login</h2>
+            <label>Usuario:</label>
+            <input type="text" id="usuario">
+            <label>Contraseña:</label>
+            <input type="password" id="clave">
+            <button onclick="login()">Iniciar Sesión</button>
+        </div>
+
+        <div class="form-container" id="tareaForm" style="display: none;">
+            <h2 id="form-title">Crear Tarea</h2>
+            <input type="hidden" id="tareaId">
+            <label>Título:</label>
+            <input type="text" id="titulo">
+            <label>Descripción:</label>
+            <input type="text" id="descripcion">
+            <label>Fecha Vencimiento:</label>
+            <input type="date" id="fechaVencimiento">
+            <label>Estado:</label>
+            <select id="estado">
+                <option value="Pendiente">Pendiente</option>
+                <option value="En Proceso">En Proceso</option>
+                <option value="Completada">Completada</option>
+            </select>
+            <button onclick="guardarTarea()">Guardar</button>
+            <button onclick="resetFormulario()">Cancelar</button>
+            <div id="mensaje"></div>
+        </div>
+
+        <div id="listaTareas" style="display: none;">
+            <h2>Lista de Tareas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Descripción</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaTareas"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:5007/api/tareas";
+        const LOGIN_URL = "http://localhost:5007/api/auth/login";
+
+        window.onload = () => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                document.getElementById("loginForm").style.display = "none";
+                document.getElementById("tareaForm").style.display = "block";
+                document.getElementById("listaTareas").style.display = "block";
+                document.getElementById("logoutContainer").style.display = "block";
+                obtenerTareas();
+            }
+        };
+
+        function mostrarMensaje(texto, tipo) {
+            const mensaje = document.getElementById("mensaje");
+            mensaje.textContent = texto;
+            mensaje.className = tipo === "exito" ? "exito" : "error";
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem("token");
+            document.getElementById("loginForm").style.display = "block";
+            document.getElementById("tareaForm").style.display = "none";
+            document.getElementById("listaTareas").style.display = "none";
+            document.getElementById("logoutContainer").style.display = "none";
+            mostrarMensaje("Sesión cerrada exitosamente", "exito");
+        }
+
+        async function login() {
+            const usuario = document.getElementById("usuario").value;
+            const clave = document.getElementById("clave").value;
+
+            try {
+                const response = await fetch(LOGIN_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ usuario, clave })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem("token", data.token);
+                    document.getElementById("loginForm").style.display = "none";
+                    document.getElementById("tareaForm").style.display = "block";
+                    document.getElementById("listaTareas").style.display = "block";
+                    document.getElementById("logoutContainer").style.display = "block";
+                    obtenerTareas();
+                    mostrarMensaje("Login exitoso", "exito");
+                } else {
+                    mostrarMensaje("Credenciales incorrectas", "error");
+                }
+            } catch (error) {
+                mostrarMensaje("Error en login", "error");
+            }
+        }
+
+        async function obtenerTareas() {
+            try {
+                const response = await fetch(API_URL, {
+                    headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+                });
+                const tareas = await response.json();
+                const tabla = document.getElementById("tablaTareas");
+                tabla.innerHTML = "";
+                tareas.forEach(t => {
+                    tabla.innerHTML += `
+                <tr>
+                  <td>${t.id}</td>
+                  <td>${t.titulo}</td>
+                  <td>${t.descripcion ?? ""}</td>
+                  <td>${t.fechaVencimiento ? new Date(t.fechaVencimiento).toLocaleDateString() : ""}</td>
+                  <td>${t.estado}</td>
+                  <td>
+                    <button onclick="editarTarea(${t.id})">Editar</button>
+                    <button onclick="eliminarTarea(${t.id})">Eliminar</button>
+                  </td>
+                </tr>`;
+                });
+            } catch (error) {
+                mostrarMensaje("Error al obtener las tareas", "error");
+            }
+        }
+
+        async function guardarTarea() {
+            const id = document.getElementById("tareaId").value;
+            const titulo = document.getElementById("titulo").value.trim();
+            const descripcion = document.getElementById("descripcion").value.trim();
+            const fechaVencimiento = document.getElementById("fechaVencimiento").value;
+            const estado = document.getElementById("estado").value;
+
+            if (!titulo) return mostrarMensaje("El título es obligatorio", "error");
+
+            const tarea = { titulo, descripcion, fechaVencimiento, estado };
+
+            try {
+                let response;
+                const headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                };
+
+                if (id) {
+                    tarea.id = parseInt(id);
+                    response = await fetch(`${API_URL}/${id}`, {
+                        method: "PUT",
+                        headers,
+                        body: JSON.stringify(tarea)
+                    });
+                } else {
+                    response = await fetch(API_URL, {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify(tarea)
+                    });
+                }
+
+                if (response.ok) {
+                    resetFormulario();
+                    obtenerTareas();
+                    mostrarMensaje("Tarea guardada con éxito", "exito");
+                } else {
+                    const errorData = await response.json();
+                    mostrarMensaje("Error: " + errorData.error, "error");
+                }
+            } catch (error) {
+                mostrarMensaje("Error al guardar", "error");
+            }
+        }
+
+        async function editarTarea(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+                });
+                const tarea = await response.json();
+                document.getElementById("form-title").textContent = "Editar Tarea";
+                document.getElementById("tareaId").value = tarea.id;
+                document.getElementById("titulo").value = tarea.titulo;
+                document.getElementById("descripcion").value = tarea.descripcion;
+                document.getElementById("fechaVencimiento").value = tarea.fechaVencimiento.split("T")[0];
+                document.getElementById("estado").value = tarea.estado;
+            } catch (error) {
+                mostrarMensaje("Error al cargar tarea", "error");
+            }
+        }
+
+        async function eliminarTarea(id) {
+            if (!confirm("¿Estás seguro de eliminar esta tarea?")) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+                });
+
+                if (response.ok) {
+                    obtenerTareas();
+                    mostrarMensaje("Tarea eliminada", "exito");
+                } else {
+                    mostrarMensaje("No se pudo eliminar", "error");
+                }
+            } catch (error) {
+                mostrarMensaje("Error al eliminar tarea", "error");
+            }
+        }
+
+        function resetFormulario() {
+            document.getElementById("form-title").textContent = "Crear Tarea";
+            document.getElementById("tareaId").value = "";
+            document.getElementById("titulo").value = "";
+            document.getElementById("descripcion").value = "";
+            document.getElementById("fechaVencimiento").value = "";
+            document.getElementById("estado").value = "Pendiente";
+            mostrarMensaje("", "");
+        }
+    </script>
+</body>
+</html>
